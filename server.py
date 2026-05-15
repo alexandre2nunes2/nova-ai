@@ -15,7 +15,7 @@ def perguntar(mensagem):
                 "Content-Type": "application/json"
             },
             json={
-                "model": "mistralai/mistral-7b-instruct",
+               "model": "openchat/openchat-7b",
                 "messages": [
                     {"role": "system", "content": "Você é NOVA, uma assistente inteligente, rápida e direta."},
                     {"role": "user", "content": mensagem}
