@@ -39,10 +39,9 @@ def nova():
     try:
         msg = request.json["message"]
 
-        r1 = perguntar("mistralai/mistral-7b-instruct", msg)
-        r2 = perguntar("openchat/openchat-7b", f"Melhore: {r1}")
+      resposta = perguntar("mistralai/mistral-7b-instruct", msg)
 
-        return jsonify({"resposta": r2})
+return jsonify({"resposta": resposta})
 
     except Exception as e:
         return jsonify({"resposta": f"Erro geral: {str(e)}"})
