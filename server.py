@@ -6,27 +6,29 @@ app = Flask(__name__)
 
 API_KEY = os.getenv("API_KEY")
 
-def perguntar(modelo, mensagem):
+def perguntar(mensagem):
     try:
-        r = requests.post(
+        response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
             headers={
-                "Authorization": f"Bearer {API_KEY}"
+                "Authorization": f"Bearer {API_KEY}",
+                "Content-Type": "application/json"
             },
             json={
-                "model": modelo,
+                "model": "mistralai/mistral-7b-instruct",
                 "messages": [
-                    {"role": "system", "content": "Você é NOVA, assistente inteligente."},
+                    {"role": "system", "content": "Você é NOVA, uma assistente inteligente, rápida e direta."},
                     {"role": "user", "content": mensagem}
-                ]
-            }
+                ],
+                "max_tokens": 200
+            },
+            timeout=20
         )
 
-        data = r.json()
+        data = response.json()
 
-        # 🔥 proteção contra erro
         if "choices" not in data:
-            return f"Erro da API: {data}"
+            return f"Erro da IA: {data}"
 
         return data["choices"][0]["message"]["content"]
 
@@ -37,14 +39,18 @@ def perguntar(modelo, mensagem):
 @app.route("/nova", methods=["POST"])
 def nova():
     try:
-        msg = request.json["message"]
+        msg = request.json.get("message", "")
 
-      resposta = perguntar("mistralai/mistral-7b-instruct", msg)
+        if not msg:
+            return jsonify({"resposta": "Mensagem vazia."})
 
-return jsonify({"resposta": resposta})
+        resposta = perguntar(msg)
+
+        return jsonify({"resposta": resposta})
 
     except Exception as e:
         return jsonify({"resposta": f"Erro geral: {str(e)}"})
 
 
-app.run(host="0.0.0.0", port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
